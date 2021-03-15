@@ -10,7 +10,7 @@ export function Home() {
 	useEffect(() => {
 		fetch("https://assets.breatheco.de/apis/fake/todos/user/menganito", {
 			method: "GET",
-			heathers: {
+			headers: {
 				"Content-Type": "application/json"
 			}
 		})
@@ -23,30 +23,38 @@ export function Home() {
 	}, []);
 
 	function createTodo() {
-		console.log("Createtodo");
+		let todoObject = {
+			label: newTodo,
+			done: false
+		};
+		let newTodos = [...todos, todoObject];
+		setTodos(newTodos);
 		fetch("https://assets.breatheco.de/apis/fake/todos/user/menganito", {
 			method: "PUT",
-			heathers: {
-				"Content-Type": "application/json;charset-UTF-8"
+			headers: {
+				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({
-				title: newTodo,
-				body: "",
-				userId: 1
-			})
+			body: JSON.stringify(newTodos)
 		})
-			.then(response => response.json())
-			.then(responseJson => {
-				console.log(responseJson);
-				let newTodos = JSON.parse(JSON.stringify(todos));
-				responseJson.title = newTodo;
-				newTodos.push(responseJson);
-				setTodos(newTodos);
-			});
+			.then(response => {
+				return response.json();
+			})
+			.then(responseJson => console.log());
 	}
 
-	function deleteTodo(id) {
-		let newTodos = todos.filter(todo => todo.id !== id);
+	function deleteTodo(index) {
+		let newTodos = todos.filter((todo, i) => i !== index);
+		fetch("https://assets.breatheco.de/apis/fake/todos/user/menganito", {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(newTodos)
+		})
+			.then(response => {
+				return response.json();
+			})
+			.then(responseJson => console.log());
 		console.log(newTodos);
 		setTodos(newTodos);
 	}
@@ -66,16 +74,16 @@ export function Home() {
 				<input type="button" value="crear" onClick={createTodo} />
 			</div>
 			<ul className="list-group col-8 ">
-				{todos.map((todo, id) => {
+				{todos.map((todo, index) => {
 					return (
 						<li
-							key={id}
+							key={index}
 							className="list-group-item d-flex justify-content-between align-items-center">
 							{todo.label}
 							<button
 								type="button"
 								className="btn btn-outline-dark btn-sm m-3 "
-								onClick={() => deleteTodo(id, todo)}>
+								onClick={() => deleteTodo(index)}>
 								{" "}
 								X
 							</button>
